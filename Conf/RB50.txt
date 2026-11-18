@@ -1,0 +1,25 @@
+/interface bridge
+add name=bridgeVLAN50
+/interface vlan
+add interface=ether1 name=vlan50-TAGGED vlan-id=50
+add interface=ether1 name=vlan51-TAGGED vlan-id=51
+/interface wireless security-profiles
+set [ find default=yes ] supplicant-identity=MikroTik
+/port
+set 0 name=serial0
+/interface bridge port
+add bridge=bridgeVLAN50 interface=vlan50-TAGGED
+add bridge=bridgeVLAN50 interface=ether3
+/interface bridge vlan
+add bridge=bridgeVLAN50 untagged=ether3 vlan-ids=50
+/ip address
+add address=172.16.50.1/24 interface=vlan50-TAGGED network=172.16.50.0
+add address=172.16.51.1/24 interface=vlan51-TAGGED network=172.16.51.0
+/ip dhcp-client
+add interface=ether4
+/ip firewall nat
+add action=masquerade chain=srcnat out-interface=ether4
+/system identity
+set name=RB50
+/tool romon
+set enabled=yes

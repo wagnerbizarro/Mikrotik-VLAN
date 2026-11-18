@@ -1,0 +1,42 @@
+/interface bridge
+add name=bridge-vlan11
+add name=bridge-vlan12
+/interface ethernet
+set [ find default-name=ether1 ] comment=RB11-eth2
+set [ find default-name=ether2 ] comment=RB12-eth2
+set [ find default-name=ether3 ] comment=VPC6-VLAN12
+set [ find default-name=ether4 ] comment=VPC5-VLAN12
+set [ find default-name=ether5 ] comment=VPC4-VLAN12
+set [ find default-name=ether6 ] comment=VPC3-VLAN11
+set [ find default-name=ether7 ] comment=VPC2-VLAN11
+set [ find default-name=ether8 ] comment=VPC1-VLAN11
+/interface wireless security-profiles
+set [ find default=yes ] supplicant-identity=MikroTik
+/port
+set 0 name=serial0
+/interface bridge port
+add bridge=bridge-vlan11 interface=ether8 pvid=11
+add bridge=bridge-vlan11 interface=ether7 pvid=11
+add bridge=bridge-vlan11 interface=ether6 pvid=11
+add bridge=bridge-vlan12 interface=ether3 pvid=12
+add bridge=bridge-vlan12 interface=ether4 pvid=12
+add bridge=bridge-vlan12 interface=ether5 pvid=12
+add bridge=bridge-vlan11 interface=ether1 pvid=11
+add bridge=bridge-vlan12 interface=ether2 pvid=12
+/interface bridge vlan
+add bridge=bridge-vlan11 tagged=ether1 untagged=ether6,ether7,ether8 \
+    vlan-ids=11
+add bridge=bridge-vlan12 tagged=ether2 untagged=ether3,ether4,ether5 \
+    vlan-ids=12
+/ip address
+add address=172.16.11.254/24 disabled=yes interface=bridge-vlan11 network=\
+    172.16.11.0
+add address=172.16.12.254/24 disabled=yes interface=bridge-vlan12 network=\
+    172.16.12.0
+/ip dhcp-client
+# DHCP client can not run on slave or passthrough interface!
+add interface=ether1
+/system identity
+set name=SW10
+/tool romon
+set enabled=yes
